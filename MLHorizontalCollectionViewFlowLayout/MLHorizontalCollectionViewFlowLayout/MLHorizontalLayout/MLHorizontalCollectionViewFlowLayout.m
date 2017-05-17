@@ -37,7 +37,7 @@
         [(NSMutableArray *) rowCollections[key] addObject:itemAttributes];
     }
     
-    CGFloat collectionViewWidth = CGRectGetWidth(self.collectionView.bounds) - self.collectionView.contentInset.left - self.collectionView.contentInset.right;
+    CGFloat collectionViewWidth = [self collectionViewContentWidth];
     [rowCollections enumerateKeysAndObjectsUsingBlock:^(id key, NSArray *itemAttributesCollection, BOOL *stop) {
         NSInteger itemsInRow = [itemAttributesCollection count];
         CGFloat interitemSpacing = [self minimumInteritemSpacing];
@@ -50,13 +50,17 @@
             NSUInteger section = [[itemAttributesCollection[0] indexPath] section];
             sectionInsets = [flowDelegate collectionView:self.collectionView layout:self insetForSectionAtIndex:section];
         }
+        //计算出总间隔
         CGFloat aggregateInteritemSpacing = interitemSpacing * (itemsInRow - 1);
+        //计算每行所有item的宽度
         CGFloat aggregateItemWidths = 0.f;
         for (UICollectionViewLayoutAttributes *itemAttributes in itemAttributesCollection) {
             aggregateItemWidths += CGRectGetWidth(itemAttributes.frame);
         }
+        //间隔和item的总宽度
         CGFloat alignmentWidth = aggregateItemWidths + aggregateInteritemSpacing;
         CGFloat alignmentXOffset = 0.0;
+        //算出每行第一个item的偏移量
         if (_horizonalType == MLHorizonalLeft) {
             alignmentXOffset = sectionInsets.left;
         }else if (_horizonalType == MLHorizonalCenter){
@@ -78,6 +82,11 @@
         
     }];
     return superAttribute;
+}
+
+- (CGFloat)collectionViewContentWidth
+{
+    return CGRectGetWidth(self.collectionView.bounds) - self.collectionView.contentInset.left - self.collectionView.contentInset.right;;
 }
 
 - (CGSize)collectionViewContentSize
